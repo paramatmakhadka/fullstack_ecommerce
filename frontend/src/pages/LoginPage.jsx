@@ -20,22 +20,69 @@ export default function LoginPage() {
     }
 
     return (
-        <div style={{ maxWidth: 400, margin: '2rem auto' }}>
-            <h2>Login</h2>
-            {error && <div style={{ color: 'red' }}>{error}</div>}
+        <div className="container mt-5" style={{ maxWidth: '420px' }}>
+            <h3 className="mb-4 text-center">Login</h3>
+
+            {error && (
+                <div className="alert alert-danger">
+                    {error}
+                </div>
+            )}
+
             <form onSubmit={submitHandler}>
-                <div>
-                    <label>Email</label>
-                    <input type='email' value={email} onChange={(e) => setEmail(e.target.value)} required />
+                {/* Email */}
+                <div className="mb-3">
+                    <label htmlFor="loginEmail" className="form-label">
+                        Email address
+                    </label>
+                    <input
+                        type="email"
+                        className="form-control"
+                        id="loginEmail"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        required
+                    />
+                    <div className="form-text">
+                        We'll never share your email with anyone else.
+                    </div>
                 </div>
-                <div>
-                    <label>Password</label>
-                    <input type='password' value={password} onChange={(e) => setPassword(e.target.value)} required />
+
+                {/* Password */}
+                <div className="mb-3">
+                    <label htmlFor="loginPassword" className="form-label">
+                        Password
+                    </label>
+                    <input
+                        type="password"
+                        className="form-control"
+                        id="loginPassword"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        required
+                    />
                 </div>
-                <button type='submit'>Login</button>
+
+                {/* Remember me (UI only) */}
+                <div className="mb-3 form-check">
+                    <input
+                        type="checkbox"
+                        className="form-check-input"
+                        id="rememberMe"
+                    />
+                    <label className="form-check-label" htmlFor="rememberMe">
+                        Remember me
+                    </label>
+                </div>
+
+                {/* Submit */}
+                <button type="submit" className="btn btn-primary w-100">
+                    Login
+                </button>
             </form>
-            <div style={{ marginTop: '1rem' }}>
-                New user? <Link to='/register'>Register</Link>
+
+            <div className="text-center mt-3">
+                New user? <Link to="/register">Register</Link>
             </div>
         </div>
     )

@@ -53,6 +53,19 @@ export default function AdminOrderDetails() {
                 <p>{order.shippingAddress.country}</p>
             </div>
 
+            {order.couponCode && (
+                <div style={{ margin: '1rem 0', padding: '0.5rem 1rem', background: '#e8f4fd', borderLeft: '5px solid #2196F3' }}>
+                    <strong>Coupon Applied:</strong> {order.couponCode}
+                </div>
+            )}
+
+            {order.specialNote && (
+                <div style={{ margin: '1rem 0', padding: '1rem', background: '#fff9c4', border: '1px solid #fbc02d', borderRadius: 8 }}>
+                    <strong>Special Note:</strong>
+                    <p style={{ margin: '0.5rem 0 0' }}>{order.specialNote}</p>
+                </div>
+            )}
+
             <div style={{ margin: '1.5rem 0' }}>
                 <h3>Order Items</h3>
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>

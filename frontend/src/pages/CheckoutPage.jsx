@@ -6,7 +6,7 @@ import { AuthContext } from '../context/AuthContext'
 import { toast } from 'react-toastify'
 
 export default function CheckoutPage() {
-    const { cartItems, clearCart } = useContext(CartContext)
+    const { cartItems, clearCart, couponCode, specialNote } = useContext(CartContext)
     const { user } = useContext(AuthContext)
     const navigate = useNavigate()
     const [form, setForm] = useState({ name: '', address: '', city: '', postalCode: '', country: '' })
@@ -30,7 +30,9 @@ export default function CheckoutPage() {
                 })),
                 shippingAddress: form,
                 paymentMethod: 'Cash on Delivery',
-                totalPrice: subtotal
+                totalPrice: subtotal,
+                couponCode,
+                specialNote
             }
 
             await axios.post('http://localhost:5000/api/orders', orderData)

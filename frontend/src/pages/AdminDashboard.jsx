@@ -242,6 +242,8 @@ export default function AdminDashboard() {
                                 <th style={{ textAlign: 'left' }}>Total</th>
                                 <th style={{ textAlign: 'left' }}>Payment</th>
                                 <th style={{ textAlign: 'left' }}>Status</th>
+                                <th style={{ textAlign: 'left' }}>Coupon</th>
+                                <th style={{ textAlign: 'left' }}>Note</th>
                                 <th>Actions</th>
                             </tr>
                         </thead>
@@ -273,6 +275,10 @@ export default function AdminDashboard() {
                                         }}>
                                             {o.status}
                                         </span>
+                                    </td>
+                                    <td style={{ fontSize: '13px' }}>{o.couponCode || '-'}</td>
+                                    <td style={{ fontSize: '13px', maxWidth: '150px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }} title={o.specialNote}>
+                                        {o.specialNote || '-'}
                                     </td>
                                     <td style={{ textAlign: 'center' }}>
                                         <button onClick={() => navigate(`/admin/order/${o._id}`)}>Details</button>

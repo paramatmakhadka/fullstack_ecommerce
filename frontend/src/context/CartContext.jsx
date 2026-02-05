@@ -5,15 +5,31 @@ export const CartContext = createContext()
 
 export function CartProvider({ children }) {
     const [cartItems, setCartItems] = useState([])
+    const [couponCode, setCouponCode] = useState('')
+    const [specialNote, setSpecialNote] = useState('')
 
     useEffect(() => {
         const stored = localStorage.getItem('cart')
-        if (stored) setCartItems(JSON.parse(stored))
+        if (stored) {
+            const data = JSON.parse(stored)
+            // Handle both old format (array) and new format (object)
+            if (Array.isArray(data)) {
+                setCartItems(data)
+            } else {
+                setCartItems(data.items || [])
+                setCouponCode(data.coupon || '')
+                setSpecialNote(data.note || '')
+            }
+        }
     }, [])
 
     useEffect(() => {
-        localStorage.setItem('cart', JSON.stringify(cartItems))
-    }, [cartItems])
+        localStorage.setItem('cart', JSON.stringify({
+            items: cartItems,
+            coupon: couponCode,
+            note: specialNote
+        }))
+    }, [cartItems, couponCode, specialNote])
 
     const addToCart = (product, qty = 1) => {
         setCartItems((prev) => {
@@ -45,10 +61,24 @@ export function CartProvider({ children }) {
         })
     }
 
-    const clearCart = () => setCartItems([])
+    const clearCart = () => {
+        setCartItems([])
+        setCouponCode('')
+        setSpecialNote('')
+    }
 
     return (
-        <CartContext.Provider value={{ cartItems, addToCart, removeFromCart, updateQty, clearCart }}>
+        <CartContext.Provider value={{
+            cartItems,
+            couponCode,
+            setCouponCode,
+            specialNote,
+            setSpecialNote,
+            addToCart,
+            removeFromCart,
+            updateQty,
+            clearCart
+        }}>
             {children}
         </CartContext.Provider>
     )

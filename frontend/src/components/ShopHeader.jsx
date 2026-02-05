@@ -8,7 +8,9 @@ export default function ShopHeader() {
     const { user, logout } = useContext(AuthContext)
     const { cartItems } = useContext(CartContext)
     const navigate = useNavigate()
+
     const [categories, setCategories] = useState([])
+    const [keyword, setKeyword] = useState('')
 
     useEffect(() => {
         const fetchCategories = async () => {
@@ -27,6 +29,16 @@ export default function ShopHeader() {
         navigate('/')
     }
 
+    const handleSearch = (e) => {
+        e.preventDefault()
+
+        if (keyword.trim()) {
+            navigate(`/products?keyword=${encodeURIComponent(keyword)}`)
+        } else {
+            navigate('/products')
+        }
+    }
+
     const cartCount = cartItems.reduce((s, i) => s + i.qty, 0)
 
     return (
@@ -36,19 +48,18 @@ export default function ShopHeader() {
                 <div className="container py-3 d-flex align-items-center justify-content-between">
 
                     {/* Logo */}
-                    <Link
-                        to="/"
-                        className="text-dark text-decoration-none fw-bold fs-4"
-                    >
-                        MERN <span className="text-secondary">Shop</span>
+                    <Link to="/" className="text-dark text-decoration-none fw-bold fs-4">
+                        Hamro <span className="text-secondary">Pasal</span>
                     </Link>
 
                     {/* Search */}
-                    <form className="d-flex w-50 mx-4">
+                    <form onSubmit={handleSearch} className="d-flex w-50 mx-4">
                         <input
                             className="form-control rounded-0"
                             type="search"
-                            placeholder="Search"
+                            placeholder="Search products..."
+                            value={keyword}
+                            onChange={(e) => setKeyword(e.target.value)}
                         />
                         <button className="btn btn-outline-dark rounded-0">
                             Search
@@ -104,8 +115,8 @@ export default function ShopHeader() {
                 <div className="container">
                     <ul className="navbar-nav flex-row gap-3 overflow-auto">
                         <li className="nav-item">
-                            <Link className="nav-link" to="/">
-                                Home
+                            <Link className="nav-link" to="/products">
+                                All
                             </Link>
                         </li>
 
@@ -113,7 +124,7 @@ export default function ShopHeader() {
                             <li key={c._id} className="nav-item">
                                 <Link
                                     className="nav-link"
-                                    to={`/?category=${encodeURIComponent(c.name)}`}
+                                    to={`/products?category=${encodeURIComponent(c.name)}`}
                                 >
                                     {c.name}
                                 </Link>

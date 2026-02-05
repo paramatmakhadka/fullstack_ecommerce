@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useContext } from 'react'
 import axios from 'axios'
-import { Link } from 'react-router-dom'
 import { CartContext } from '../context/CartContext'
+import ProductCard from '../components/ProductCard'
 
 export default function HomePage() {
     const [products, setProducts] = useState([])
@@ -20,19 +20,13 @@ export default function HomePage() {
     }, [])
 
     return (
-        <div style={{ maxWidth: 1000, margin: '1rem auto' }}>
-            <h2>Products</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '1rem' }}>
+        <div className="container my-4">
+            <h3 className="mb-4">Latest Products</h3>
+
+            <div className="row g-4">
                 {products.map((p) => (
-                    <div key={p._id} style={{ border: '1px solid #ddd', padding: '1rem' }}>
-                        <img src={`http://localhost:5000${p.image}`} alt={p.name} style={{ width: '100%', height: '200px', objectFit: 'cover' }} />
-                        <h3>{p.name}</h3>
-                        <p>{p.description}</p>
-                        <strong>Rs {p.price}</strong>
-                        <div style={{ marginTop: '0.5rem' }}>
-                            <Link to={`/product/${p._id}`} style={{ marginRight: '0.5rem' }}>View</Link>
-                            <button onClick={() => addToCart(p, 1)} disabled={p.countInStock === 0}>Add To Cart</button>
-                        </div>
+                    <div key={p._id} className="col-12 col-sm-6 col-md-4 col-lg-3">
+                        <ProductCard product={p} addToCart={addToCart} />
                     </div>
                 ))}
             </div>

@@ -12,20 +12,60 @@ export default function AdminHeader() {
     }
 
     return (
-        <header style={{ padding: '1rem', background: '#333', color: '#fff' }}>
-            <div style={{ maxWidth: 1000, margin: '0 auto', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div style={{ fontWeight: 'bold' }}>
-                    <Link to='/admin' style={{ color: '#fff', textDecoration: 'none', marginRight: '2rem' }}>ADMIN PANEL</Link>
+        <>
+            {/* ===== ADMIN TOP BAR ===== */}
+            <div className="navbar navbar-dark bg-dark border-bottom">
+                <div className="container py-3 d-flex align-items-center justify-content-between">
+
+                    {/* Logo / Title */}
+                    <Link
+                        to="/admin"
+                        className="text-dark text-decoration-none fw-bold fs-5 text-white"
+                    >
+                        Hamro <span className="text-secondary">Pasal</span>
+                    </Link>
+
+                    {/* Navigation */}
+                    <div className="d-flex align-items-center gap-3">
+
+                        <Link to="/" className="btn btn-outline-secondary btn-sm text-white">
+                            View Store
+                        </Link>
+
+                        <Link to="/admin" className="btn btn-outline-dark btn-sm text-white">
+                            Dashboard
+                        </Link>
+
+                        <Link to="/admin?tab=products" className="btn btn-outline-dark btn-sm text-white">
+                            Products
+                        </Link>
+
+                        <Link to="/admin?tab=users" className="btn btn-outline-dark btn-sm text-white">
+                            Users
+                        </Link>
+
+                        <Link to="/admin?tab=orders" className="btn btn-outline-dark btn-sm text-white">
+                            Orders
+                        </Link>
+
+                        <button
+                            onClick={handleLogout}
+                            className="btn btn-danger btn-sm"
+                        >
+                            Logout
+                        </button>
+                    </div>
                 </div>
-                <nav>
-                    <Link to='/' style={{ color: '#aaa', textDecoration: 'none', marginRight: '1.5rem', fontSize: '14px' }}>View Store</Link>
-                    <Link to='/admin' style={{ color: '#fff', marginRight: '1rem', textDecoration: 'none', fontWeight: 'bold' }}>Dashboard</Link>
-                    <Link to='/admin?tab=products' style={{ color: '#fff', marginRight: '1rem', textDecoration: 'none' }}>Products</Link>
-                    <Link to='/admin?tab=users' style={{ color: '#fff', marginRight: '1rem', textDecoration: 'none' }}>Users</Link>
-                    <Link to='/admin?tab=orders' style={{ color: '#fff', marginRight: '1.5rem', textDecoration: 'none' }}>Orders</Link>
-                    <button onClick={handleLogout} style={{ background: '#e74c3c', color: '#fff', border: 'none', padding: '0.4rem 0.8rem', cursor: 'pointer', borderRadius: '4px' }}>Logout</button>
-                </nav>
             </div>
-        </header>
+
+            {/* ===== ADMIN SUB BAR (OPTIONAL) ===== */}
+            <nav className="navbar navbar-dark bg-dark">
+                <div className="container">
+                    <span className="navbar-text small text-light">
+                        Logged in as: <strong>{user?.name}</strong>
+                    </span>
+                </div>
+            </nav>
+        </>
     )
 }
