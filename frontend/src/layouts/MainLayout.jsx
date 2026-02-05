@@ -1,11 +1,11 @@
 import React from 'react'
 import { Outlet } from 'react-router-dom'
-import Header from '../components/Header'
+import ShopHeader from '../components/ShopHeader'
 
 export default function MainLayout() {
     return (
         <div>
-            <Header />
+            <ShopHeader />
             <main>
                 <Outlet />
             </main>

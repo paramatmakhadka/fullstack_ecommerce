@@ -21,7 +21,6 @@ export default function AdminHeader() {
                     <Link to='/' style={{ color: '#aaa', textDecoration: 'none', marginRight: '1.5rem', fontSize: '14px' }}>View Store</Link>
                     <Link to='/admin' style={{ color: '#fff', marginRight: '1rem', textDecoration: 'none', fontWeight: 'bold' }}>Dashboard</Link>
                     <Link to='/admin?tab=products' style={{ color: '#fff', marginRight: '1rem', textDecoration: 'none' }}>Products</Link>
-                    <Link to='/admin?tab=categories' style={{ color: '#fff', marginRight: '1rem', textDecoration: 'none' }}>Categories</Link>
                     <Link to='/admin?tab=users' style={{ color: '#fff', marginRight: '1rem', textDecoration: 'none' }}>Users</Link>
                     <Link to='/admin?tab=orders' style={{ color: '#fff', marginRight: '1.5rem', textDecoration: 'none' }}>Orders</Link>
                     <button onClick={handleLogout} style={{ background: '#e74c3c', color: '#fff', border: 'none', padding: '0.4rem 0.8rem', cursor: 'pointer', borderRadius: '4px' }}>Logout</button>
