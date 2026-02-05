@@ -36,85 +36,144 @@ export default function AdminOrderDetails() {
         }
     }
 
-    if (!order) return <div style={{ padding: 20 }}>Loading...</div>
+    if (!order) return (
+        <div className="container d-flex justify-content-center align-items-center" style={{ minHeight: '50vh' }}>
+            <div className="spinner-border text-primary" role="status">
+                <span className="visually-hidden">Loading...</span>
+            </div>
+        </div>
+    )
 
     return (
-        <div style={{ maxWidth: 800, margin: '2rem auto', padding: '0 1rem' }}>
-            <button onClick={() => navigate('/admin')} style={{ marginBottom: '1rem' }}>Back to Dashboard</button>
-            <h2>Order Details</h2>
-            <p><strong>Order ID:</strong> {order._id}</p>
-            <p><strong>Customer:</strong> {order.user ? order.user.name : order.shippingAddress.name + ' (Guest)'}</p>
-            <p><strong>Date:</strong> {new Date(order.createdAt).toLocaleString()}</p>
+        <div className="container my-5" style={{ maxWidth: '900px' }}>
+            {/* UI Change: Styled Navigation Button */}
+            <button
+                className="btn btn-outline-secondary btn-sm mb-4 px-3"
+                onClick={() => navigate('/admin')}
+            >
+                ← Back to Dashboard
+            </button>
 
-            <div style={{ margin: '1.5rem 0', padding: '1rem', border: '1px solid #ddd', borderRadius: 8 }}>
-                <h3>Shipping Information</h3>
-                <p>{order.shippingAddress.address}</p>
-                <p>{order.shippingAddress.city}, {order.shippingAddress.postalCode}</p>
-                <p>{order.shippingAddress.country}</p>
-            </div>
-
-            {order.couponCode && (
-                <div style={{ margin: '1rem 0', padding: '0.5rem 1rem', background: '#e8f4fd', borderLeft: '5px solid #2196F3' }}>
-                    <strong>Coupon Applied:</strong> {order.couponCode}
+            <div className="d-flex justify-content-between align-items-end mb-4">
+                <div>
+                    <h2 className="fw-bold mb-1">Order Details</h2>
+                    <p className="text-muted mb-0">Order ID: <span className="text-dark font-monospace">{order._id}</span></p>
                 </div>
-            )}
-
-            {order.specialNote && (
-                <div style={{ margin: '1rem 0', padding: '1rem', background: '#fff9c4', border: '1px solid #fbc02d', borderRadius: 8 }}>
-                    <strong>Special Note:</strong>
-                    <p style={{ margin: '0.5rem 0 0' }}>{order.specialNote}</p>
-                </div>
-            )}
-
-            <div style={{ margin: '1.5rem 0' }}>
-                <h3>Order Items</h3>
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                    <thead>
-                        <tr style={{ borderBottom: '2px solid #eee' }}>
-                            <th style={{ textAlign: 'left', padding: '0.5rem' }}>Product</th>
-                            <th>Qty</th>
-                            <th>Price</th>
-                            <th>Total</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {order.orderItems.map((item, idx) => (
-                            <tr key={idx} style={{ borderBottom: '1px solid #eee' }}>
-                                <td style={{ padding: '0.5rem' }}>{item.name}</td>
-                                <td style={{ textAlign: 'center' }}>{item.qty}</td>
-                                <td style={{ textAlign: 'center' }}>Rs {item.price}</td>
-                                <td style={{ textAlign: 'center' }}>Rs {(item.qty * item.price).toFixed(2)}</td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-                <div style={{ textAlign: 'right', marginTop: '1rem' }}>
-                    <strong>Total Price: Rs {order.totalPrice.toFixed(2)}</strong>
+                <div className="text-end">
+                    <p className="text-muted mb-0">{new Date(order.createdAt).toLocaleString()}</p>
                 </div>
             </div>
 
-            <div style={{ marginTop: '2rem', padding: '1.5rem', background: '#f9f9f9', border: '1px solid #eee', borderRadius: 8 }}>
-                <h3>Update Order Status & Payment</h3>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '2rem', alignItems: 'center' }}>
-                    <div>
-                        <label style={{ display: 'block', marginBottom: '0.5rem' }}>Order Status</label>
-                        <select value={status} onChange={(e) => setStatus(e.target.value)} style={{ padding: '0.5rem', width: '200px' }}>
-                            <option value="Pending">Pending</option>
-                            <option value="Processed">Processed</option>
-                            <option value="Dispatched">Dispatched</option>
-                            <option value="Delivered">Delivered</option>
-                            <option value="Canceled">Canceled</option>
-                            <option value="Refunded">Refunded</option>
-                        </select>
+            <div className="row g-4">
+                {/* Left Column: Info & Items */}
+                <div className="col-lg-8">
+                    {/* UI Change: Modern Card for Customer & Shipping */}
+                    <div className="card border-0 shadow-sm mb-4">
+                        <div className="card-body p-4">
+                            <h5 className="card-title fw-bold mb-3">Customer Information</h5>
+                            <p className="mb-1"><strong>Name:</strong> {order.user ? order.user.name : order.shippingAddress.name + ' (Guest)'}</p>
+                            <hr className="my-3 opacity-10" />
+                            <h6 className="fw-bold text-uppercase small text-muted mb-2">Shipping Address</h6>
+                            <p className="mb-0 text-secondary">
+                                {order.shippingAddress.address}<br />
+                                {order.shippingAddress.city}, {order.shippingAddress.postalCode}<br />
+                                {order.shippingAddress.country}
+                            </p>
+                        </div>
                     </div>
-                    <div>
-                        <label style={{ display: 'block', marginBottom: '0.5rem' }}>Payment Status</label>
-                        <select value={isPaid} onChange={(e) => setIsPaid(e.target.value === 'true')} style={{ padding: '0.5rem', width: '200px' }}>
-                            <option value="false">Pending</option>
-                            <option value="true">Received</option>
-                        </select>
+
+                    {/* UI Change: Alerts for Special Notes/Coupons */}
+                    {order.couponCode && (
+                        <div className="alert alert-primary d-flex align-items-center border-0 shadow-sm mb-4" role="alert">
+                            <div className="me-2">🎟️</div>
+                            <div><strong>Coupon Applied:</strong> {order.couponCode}</div>
+                        </div>
+                    )}
+
+                    {order.specialNote && (
+                        <div className="alert alert-warning border-0 shadow-sm mb-4" role="alert">
+                            <h6 className="fw-bold">📝 Special Note:</h6>
+                            <p className="mb-0 small">{order.specialNote}</p>
+                        </div>
+                    )}
+
+                    {/* UI Change: Modern Table for Items */}
+                    <div className="card border-0 shadow-sm">
+                        <div className="card-body p-4">
+                            <h5 className="card-title fw-bold mb-4">Order Items</h5>
+                            <div className="table-responsive">
+                                <table className="table align-middle">
+                                    <thead className="table-light">
+                                        <tr>
+                                            <th>Product</th>
+                                            <th className="text-center">Qty</th>
+                                            <th className="text-end">Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {order.orderItems.map((item, idx) => (
+                                            <tr key={idx}>
+                                                <td>
+                                                    <div className="fw-medium">{item.name}</div>
+                                                    <div className="text-muted small">Rs {item.price} each</div>
+                                                </td>
+                                                <td className="text-center">{item.qty}</td>
+                                                <td className="text-end fw-bold">Rs {(item.qty * item.price).toFixed(2)}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div className="d-flex justify-content-between mt-4 p-3 bg-light rounded">
+                                <span className="h5 mb-0">Total Amount</span>
+                                <span className="h5 mb-0 fw-bold text-primary">Rs {order.totalPrice.toFixed(2)}</span>
+                            </div>
+                        </div>
                     </div>
-                    <button onClick={updateStatusHandler} style={{ marginTop: '1.2rem', padding: '0.6rem 1.2rem', background: '#2c3e50', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer' }}>Save Changes</button>
+                </div>
+
+                {/* Right Column: Status Update Actions */}
+                <div className="col-lg-4">
+                    <div className="card border-0 shadow-sm sticky-top" style={{ top: '2rem' }}>
+                        <div className="card-body p-4">
+                            <h5 className="card-title fw-bold mb-4">Order Actions</h5>
+
+                            <div className="mb-3">
+                                <label className="form-label small fw-bold text-muted">ORDER STATUS</label>
+                                <select
+                                    className="form-select"
+                                    value={status}
+                                    onChange={(e) => setStatus(e.target.value)}
+                                >
+                                    <option value="Pending">🕒 Pending</option>
+                                    <option value="Processed">⚙️ Processed</option>
+                                    <option value="Dispatched">🚚 Dispatched</option>
+                                    <option value="Delivered">✅ Delivered</option>
+                                    <option value="Canceled">❌ Canceled</option>
+                                    <option value="Refunded">💰 Refunded</option>
+                                </select>
+                            </div>
+
+                            <div className="mb-4">
+                                <label className="form-label small fw-bold text-muted">PAYMENT STATUS</label>
+                                <select
+                                    className="form-select"
+                                    value={isPaid}
+                                    onChange={(e) => setIsPaid(e.target.value === 'true')}
+                                >
+                                    <option value="false">🔴 Unpaid / Pending</option>
+                                    <option value="true">🟢 Payment Received</option>
+                                </select>
+                            </div>
+
+                            <button
+                                className="btn btn-dark w-100 py-2 fw-bold shadow-sm"
+                                onClick={updateStatusHandler}
+                            >
+                                Update Order
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
