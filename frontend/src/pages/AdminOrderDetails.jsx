@@ -2,6 +2,7 @@ import React, { useEffect, useState, useContext } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { AuthContext } from '../context/AuthContext'
+import { toast } from 'react-toastify'
 
 export default function AdminOrderDetails() {
     const { id } = useParams()
@@ -27,11 +28,11 @@ export default function AdminOrderDetails() {
     const updateStatusHandler = async () => {
         try {
             await axios.put(`http://localhost:5000/api/orders/${id}/status`, { status, isPaid })
-            alert('Order updated')
+            toast.success('Order updated')
             navigate('/admin')
         } catch (err) {
             console.error(err)
-            alert('Update failed')
+            toast.error('Update failed')
         }
     }
 

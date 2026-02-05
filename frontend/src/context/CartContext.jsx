@@ -1,4 +1,5 @@
 import React, { createContext, useState, useEffect } from 'react'
+import { toast } from 'react-toastify'
 
 export const CartContext = createContext()
 
@@ -18,18 +19,30 @@ export function CartProvider({ children }) {
         setCartItems((prev) => {
             const exist = prev.find((i) => i._id === product._id)
             if (exist) {
-                return prev.map((i) => (i._id === product._id ? { ...i, qty: i.qty + qty } : i))
+                const updated = prev.map((i) => (i._id === product._id ? { ...i, qty: i.qty + qty } : i))
+                toast.success(`${product.name} quantity updated in cart`)
+                return updated
             }
+            toast.success(`${product.name} added to cart`)
             return [...prev, { ...product, qty }]
         })
     }
 
     const removeFromCart = (id) => {
-        setCartItems((prev) => prev.filter((i) => i._id !== id))
+        setCartItems((prev) => {
+            const removed = prev.find((i) => i._id === id)
+            toast.success(`${removed ? removed.name : 'Item'} removed from cart`)
+            return prev.filter((i) => i._id !== id)
+        })
     }
 
     const updateQty = (id, qty) => {
-        setCartItems((prev) => prev.map((i) => (i._id === id ? { ...i, qty } : i)))
+        setCartItems((prev) => {
+            const updated = prev.map((i) => (i._id === id ? { ...i, qty } : i))
+            const item = prev.find(i => i._id === id)
+            if (item) toast.info(`${item.name} quantity set to ${qty}`)
+            return updated
+        })
     }
 
     const clearCart = () => setCartItems([])

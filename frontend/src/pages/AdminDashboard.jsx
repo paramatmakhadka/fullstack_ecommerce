@@ -2,6 +2,7 @@ import React, { useEffect, useState, useContext } from 'react'
 import axios from 'axios'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { AuthContext } from '../context/AuthContext'
+import { toast } from 'react-toastify'
 
 export default function AdminDashboard() {
     const [products, setProducts] = useState([])
@@ -23,6 +24,7 @@ export default function AdminDashboard() {
         fetchCategories()
         fetchUsers()
         fetchOrders()
+        fetchStats()
     }, [])
 
     const fetchProducts = async () => {
@@ -53,14 +55,22 @@ export default function AdminDashboard() {
         } catch (err) { console.error(err) }
     }
 
+    const fetchStats = async () => {
+        try {
+            const { data } = await axios.get('http://localhost:5000/api/admin/stats')
+            setStats(data)
+        } catch (err) { console.error(err) }
+    }
+
     const deleteProduct = async (id) => {
         if (!confirm('Delete this product?')) return
         try {
             await axios.delete(`http://localhost:5000/api/products/${id}`)
             fetchProducts()
+            toast.success('Product deleted')
         } catch (err) {
             console.error(err)
-            alert('Delete failed')
+            toast.error('Delete failed')
         }
     }
 
@@ -69,9 +79,22 @@ export default function AdminDashboard() {
         try {
             await axios.delete(`http://localhost:5000/api/categories/${id}`)
             fetchCategories()
+            toast.success('Category deleted')
         } catch (err) {
             console.error(err)
-            alert('Delete failed')
+            toast.error('Delete failed')
+        }
+    }
+
+    const deleteUser = async (id) => {
+        if (!confirm('Delete this user?')) return
+        try {
+            await axios.delete(`http://localhost:5000/api/admin/users/${id}`)
+            fetchUsers()
+            toast.success('User deleted')
+        } catch (err) {
+            console.error(err)
+            toast.error('Delete failed')
         }
     }
 
@@ -106,6 +129,12 @@ export default function AdminDashboard() {
                             <p style={{ fontSize: '24px', fontWeight: 'bold', margin: '0.5rem 0' }}>{stats.userCount}</p>
                         </div>
                     </div>
+                    {stats.salesData && stats.salesData.length > 0 && (
+                        <div style={{ padding: '1rem', background: '#fff', border: '1px solid #eee', borderRadius: 8 }}>
+                            <h3 style={{ marginTop: 0 }}>Sales (last 7 days)</h3>
+                            <SalesChart data={stats.salesData} />
+                        </div>
+                    )}
                 </div>
             )}
 
@@ -181,6 +210,7 @@ export default function AdminDashboard() {
                                 <th style={{ textAlign: 'left', padding: '0.5rem' }}>Name</th>
                                 <th style={{ textAlign: 'left' }}>Email</th>
                                 <th style={{ textAlign: 'left' }}>Admin</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -189,6 +219,10 @@ export default function AdminDashboard() {
                                     <td style={{ padding: '0.5rem' }}>{u.name}</td>
                                     <td>{u.email}</td>
                                     <td>{u.isAdmin ? '✅' : '❌'}</td>
+                                    <td style={{ textAlign: 'center' }}>
+                                        <Link to={`/admin/user/${u._id}/edit`} style={{ marginRight: 8 }}><button>Edit</button></Link>
+                                        <button onClick={() => deleteUser(u._id)} style={{ color: 'red' }}>Delete</button>
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>
@@ -249,6 +283,41 @@ export default function AdminDashboard() {
                     </table>
                 </div>
             )}
+        </div>
+    )
+}
+
+function SalesChart({ data, width = 800, height = 180, color = '#3b82f6' }) {
+    if (!data || data.length === 0) return null
+    const values = data.map(d => d.total)
+    const labels = data.map(d => d.date.slice(5))
+    const max = Math.max(...values, 1)
+    const pad = 20
+    const w = width
+    const h = height
+    const stepX = (w - pad * 2) / Math.max(1, values.length - 1)
+
+    const points = values.map((v, i) => {
+        const x = pad + i * stepX
+        const y = pad + (1 - v / max) * (h - pad * 2)
+        return `${x},${y}`
+    }).join(' ')
+
+    return (
+        <div style={{ overflowX: 'auto' }}>
+            <svg width={Math.min(w, 900)} height={h} viewBox={`0 0 ${w} ${h}`} preserveAspectRatio="xMidYMid meet">
+                <polyline fill="none" stroke={color} strokeWidth="3" points={points} strokeLinecap="round" strokeLinejoin="round" />
+                {values.map((v, i) => {
+                    const x = pad + i * stepX
+                    const y = pad + (1 - v / max) * (h - pad * 2)
+                    return (
+                        <g key={i}>
+                            <circle cx={x} cy={y} r={3} fill={color} />
+                            <text x={x} y={h - 4} fontSize={10} textAnchor="middle" fill="#666">{labels[i]}</text>
+                        </g>
+                    )
+                })}
+            </svg>
         </div>
     )
 }

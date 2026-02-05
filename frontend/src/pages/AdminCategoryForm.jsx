@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate, useParams, Link } from 'react-router-dom'
 import axios from 'axios'
+import { toast } from 'react-toastify'
 
 export default function AdminCategoryForm() {
     const [name, setName] = useState('')
@@ -27,13 +28,15 @@ export default function AdminCategoryForm() {
         try {
             if (isEdit) {
                 await axios.put(`http://localhost:5000/api/categories/${id}`, { name })
+                toast.success('Category updated')
             } else {
                 await axios.post('http://localhost:5000/api/categories', { name })
+                toast.success('Category created')
             }
             navigate('/admin?tab=categories')
         } catch (err) {
             console.error(err)
-            alert(err.response?.data?.message || 'Save failed')
+            toast.error(err.response?.data?.message || 'Save failed')
         }
     }
 

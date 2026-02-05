@@ -16,6 +16,8 @@ import AdminOrderDetails from './pages/AdminOrderDetails'
 import MainLayout from './layouts/MainLayout'
 import AdminLayout from './layouts/AdminLayout'
 import { CartProvider } from './context/CartContext'
+import { ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 export default function App() {
     return (
@@ -39,6 +41,7 @@ export default function App() {
                     <Route path='category/new' element={<AdminCategoryForm />} />
                     <Route path='category/:id/edit' element={<AdminCategoryForm />} />
                     <Route path='user/new' element={<AdminUserForm />} />
+                    <Route path='user/:id/edit' element={<AdminUserForm />} />
                     <Route path='order/:id' element={<AdminOrderDetails />} />
                 </Route>
 

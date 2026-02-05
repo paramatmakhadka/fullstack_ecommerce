@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import { CartContext } from '../context/CartContext'
 import { AuthContext } from '../context/AuthContext'
+import { toast } from 'react-toastify'
 
 export default function CheckoutPage() {
     const { cartItems, clearCart } = useContext(CartContext)
@@ -34,12 +35,12 @@ export default function CheckoutPage() {
 
             await axios.post('http://localhost:5000/api/orders', orderData)
 
-            alert('Order placed successfully (Cash on Delivery)')
+            toast.success('Order placed successfully (Cash on Delivery)')
             clearCart()
             navigate('/')
         } catch (err) {
             console.error(err)
-            alert(err.response?.data?.message || 'Order placement failed')
+            toast.error(err.response?.data?.message || 'Order placement failed')
         } finally {
             setLoading(false)
         }

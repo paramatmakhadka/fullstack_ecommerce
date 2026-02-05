@@ -2,6 +2,7 @@ import React, { useState, useEffect, useContext } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import axios from 'axios'
 import { AuthContext } from '../context/AuthContext'
+import { toast } from 'react-toastify'
 
 export default function AdminProductForm() {
     const { id } = useParams()
@@ -62,9 +63,10 @@ export default function AdminProductForm() {
                 headers: { 'Content-Type': 'multipart/form-data' }
             })
             setForm({ ...form, image: data.filePath })
+            toast.success('Image uploaded')
         } catch (err) {
             console.error(err)
-            alert('Image upload failed')
+            toast.error('Image upload failed')
         } finally {
             setUploading(false)
         }
@@ -75,13 +77,15 @@ export default function AdminProductForm() {
         try {
             if (isNew) {
                 await axios.post('http://localhost:5000/api/products', form)
+                toast.success('Product created')
             } else {
                 await axios.put(`http://localhost:5000/api/products/${id}`, form)
+                toast.success('Product updated')
             }
             navigate('/admin')
         } catch (err) {
             console.error(err)
-            alert('Save failed')
+            toast.error('Save failed')
         }
     }
 
