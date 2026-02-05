@@ -63,9 +63,13 @@ const updateOrderStatus = asyncHandler(async (req, res) => {
 
 	if (order) {
 		order.status = req.body.status || order.status;
+		if (req.body.isPaid !== undefined) {
+			order.isPaid = req.body.isPaid;
+		}
 		if (req.body.status === "Delivered") {
 			order.isDelivered = true;
 			order.deliveredAt = Date.now();
+			order.isPaid = true; // Auto-mark as paid on delivery for COD
 		}
 
 		const updatedOrder = await order.save();

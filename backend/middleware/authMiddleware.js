@@ -5,7 +5,18 @@ const User = require("../models/userModel");
 const protect = asyncHandler(async (req, res, next) => {
 	let token;
 
-	if (
+	token = req.cookies.jwt;
+
+	if (token) {
+		try {
+			const decoded = jwt.verify(token, process.env.JWT_SECRET);
+			req.user = await User.findById(decoded.id).select("-password");
+			next();
+		} catch (error) {
+			res.status(401);
+			throw new Error("Not authorized, token failed");
+		}
+	} else if (
 		req.headers.authorization &&
 		req.headers.authorization.startsWith("Bearer")
 	) {
@@ -18,9 +29,7 @@ const protect = asyncHandler(async (req, res, next) => {
 			res.status(401);
 			throw new Error("Not authorized, token failed");
 		}
-	}
-
-	if (!token) {
+	} else {
 		res.status(401);
 		throw new Error("Not authorized, no token");
 	}

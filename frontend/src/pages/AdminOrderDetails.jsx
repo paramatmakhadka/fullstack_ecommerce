@@ -5,32 +5,29 @@ import { AuthContext } from '../context/AuthContext'
 
 export default function AdminOrderDetails() {
     const { id } = useParams()
-    const { token } = useContext(AuthContext)
     const navigate = useNavigate()
     const [order, setOrder] = useState(null)
     const [status, setStatus] = useState('')
+    const [isPaid, setIsPaid] = useState(false)
 
     useEffect(() => {
         const fetchOrder = async () => {
             try {
-                const { data } = await axios.get(`http://localhost:5000/api/orders/${id}`, {
-                    headers: { Authorization: `Bearer ${token}` }
-                })
+                const { data } = await axios.get(`http://localhost:5000/api/orders/${id}`)
                 setOrder(data)
                 setStatus(data.status)
+                setIsPaid(data.isPaid)
             } catch (err) {
                 console.error(err)
             }
         }
         fetchOrder()
-    }, [id, token])
+    }, [id])
 
     const updateStatusHandler = async () => {
         try {
-            await axios.put(`http://localhost:5000/api/orders/${id}/status`, { status }, {
-                headers: { Authorization: `Bearer ${token}` }
-            })
-            alert('Status updated')
+            await axios.put(`http://localhost:5000/api/orders/${id}/status`, { status, isPaid })
+            alert('Order updated')
             navigate('/admin')
         } catch (err) {
             console.error(err)
@@ -82,17 +79,28 @@ export default function AdminOrderDetails() {
                 </div>
             </div>
 
-            <div style={{ marginTop: '2rem', padding: '1rem', background: '#f9f9f9', border: '1px solid #eee' }}>
-                <h3>Update Order Status</h3>
-                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                    <select value={status} onChange={(e) => setStatus(e.target.value)} style={{ padding: '0.5rem' }}>
-                        <option value="Pending">Pending</option>
-                        <option value="Processed">Processed</option>
-                        <option value="Dispatched">Dispatched</option>
-                        <option value="Delivered">Delivered</option>
-                        <option value="Canceled">Canceled</option>
-                    </select>
-                    <button onClick={updateStatusHandler}>Update Status</button>
+            <div style={{ marginTop: '2rem', padding: '1.5rem', background: '#f9f9f9', border: '1px solid #eee', borderRadius: 8 }}>
+                <h3>Update Order Status & Payment</h3>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '2rem', alignItems: 'center' }}>
+                    <div>
+                        <label style={{ display: 'block', marginBottom: '0.5rem' }}>Order Status</label>
+                        <select value={status} onChange={(e) => setStatus(e.target.value)} style={{ padding: '0.5rem', width: '200px' }}>
+                            <option value="Pending">Pending</option>
+                            <option value="Processed">Processed</option>
+                            <option value="Dispatched">Dispatched</option>
+                            <option value="Delivered">Delivered</option>
+                            <option value="Canceled">Canceled</option>
+                            <option value="Refunded">Refunded</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style={{ display: 'block', marginBottom: '0.5rem' }}>Payment Status</label>
+                        <select value={isPaid} onChange={(e) => setIsPaid(e.target.value === 'true')} style={{ padding: '0.5rem', width: '200px' }}>
+                            <option value="false">Pending</option>
+                            <option value="true">Received</option>
+                        </select>
+                    </div>
+                    <button onClick={updateStatusHandler} style={{ marginTop: '1.2rem', padding: '0.6rem 1.2rem', background: '#2c3e50', color: '#fff', border: 'none', borderRadius: 4, cursor: 'pointer' }}>Save Changes</button>
                 </div>
             </div>
         </div>

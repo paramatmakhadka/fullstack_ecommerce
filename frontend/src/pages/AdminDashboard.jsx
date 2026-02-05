@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from 'react'
 import axios from 'axios'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { AuthContext } from '../context/AuthContext'
 
 export default function AdminDashboard() {
@@ -8,16 +8,22 @@ export default function AdminDashboard() {
     const [categories, setCategories] = useState([])
     const [users, setUsers] = useState([])
     const [orders, setOrders] = useState([])
-    const [activeTab, setActiveTab] = useState('products')
-    const { token } = useContext(AuthContext)
+    const [stats, setStats] = useState(null)
+    const [searchQuery, setSearchQuery] = useState('')
+    const [searchParams, setSearchParams] = useSearchParams()
+    const activeTab = searchParams.get('tab') || 'overview'
     const navigate = useNavigate()
+
+    const setActiveTab = (tab) => {
+        setSearchParams({ tab })
+    }
 
     useEffect(() => {
         fetchProducts()
         fetchCategories()
         fetchUsers()
         fetchOrders()
-    }, [token])
+    }, [])
 
     const fetchProducts = async () => {
         try {
@@ -35,18 +41,14 @@ export default function AdminDashboard() {
 
     const fetchUsers = async () => {
         try {
-            const { data } = await axios.get('http://localhost:5000/api/users', {
-                headers: { Authorization: `Bearer ${token}` }
-            })
+            const { data } = await axios.get('http://localhost:5000/api/admin/users')
             setUsers(data)
         } catch (err) { console.error(err) }
     }
 
     const fetchOrders = async () => {
         try {
-            const { data } = await axios.get('http://localhost:5000/api/orders', {
-                headers: { Authorization: `Bearer ${token}` }
-            })
+            const { data } = await axios.get('http://localhost:5000/api/orders')
             setOrders(data)
         } catch (err) { console.error(err) }
     }
@@ -54,9 +56,7 @@ export default function AdminDashboard() {
     const deleteProduct = async (id) => {
         if (!confirm('Delete this product?')) return
         try {
-            await axios.delete(`http://localhost:5000/api/products/${id}`, {
-                headers: { Authorization: `Bearer ${token}` }
-            })
+            await axios.delete(`http://localhost:5000/api/products/${id}`)
             fetchProducts()
         } catch (err) {
             console.error(err)
@@ -67,9 +67,7 @@ export default function AdminDashboard() {
     const deleteCategory = async (id) => {
         if (!confirm('Delete this category?')) return
         try {
-            await axios.delete(`http://localhost:5000/api/categories/${id}`, {
-                headers: { Authorization: `Bearer ${token}` }
-            })
+            await axios.delete(`http://localhost:5000/api/categories/${id}`)
             fetchCategories()
         } catch (err) {
             console.error(err)
@@ -80,12 +78,36 @@ export default function AdminDashboard() {
     return (
         <div style={{ maxWidth: 1000, margin: '2rem auto', padding: '0 1rem' }}>
             <h1>Admin Dashboard</h1>
-            <div style={{ display: 'flex', borderBottom: '1px solid #ccc', marginBottom: '1rem' }}>
-                <button onClick={() => setActiveTab('products')} style={{ padding: '0.5rem 1rem', background: activeTab === 'products' ? '#eee' : 'none', border: 'none', cursor: 'pointer' }}>Products</button>
-                <button onClick={() => setActiveTab('categories')} style={{ padding: '0.5rem 1rem', background: activeTab === 'categories' ? '#eee' : 'none', border: 'none', cursor: 'pointer' }}>Categories</button>
-                <button onClick={() => setActiveTab('users')} style={{ padding: '0.5rem 1rem', background: activeTab === 'users' ? '#eee' : 'none', border: 'none', cursor: 'pointer' }}>Users</button>
-                <button onClick={() => setActiveTab('orders')} style={{ padding: '0.5rem 1rem', background: activeTab === 'orders' ? '#eee' : 'none', border: 'none', cursor: 'pointer' }}>Orders</button>
+            <div style={{ display: 'flex', borderBottom: '1px solid #ccc', marginBottom: '1rem', overflowX: 'auto' }}>
+                <button onClick={() => setActiveTab('overview')} style={{ padding: '0.5rem 1rem', background: activeTab === 'overview' ? '#eee' : 'none', border: 'none', cursor: 'pointer', fontWeight: activeTab === 'overview' ? 'bold' : 'normal' }}>Overview</button>
+                <button onClick={() => setActiveTab('products')} style={{ padding: '0.5rem 1rem', background: activeTab === 'products' ? '#eee' : 'none', border: 'none', cursor: 'pointer', fontWeight: activeTab === 'products' ? 'bold' : 'normal' }}>Products</button>
+                <button onClick={() => setActiveTab('categories')} style={{ padding: '0.5rem 1rem', background: activeTab === 'categories' ? '#eee' : 'none', border: 'none', cursor: 'pointer', fontWeight: activeTab === 'categories' ? 'bold' : 'normal' }}>Categories</button>
+                <button onClick={() => setActiveTab('users')} style={{ padding: '0.5rem 1rem', background: activeTab === 'users' ? '#eee' : 'none', border: 'none', cursor: 'pointer', fontWeight: activeTab === 'users' ? 'bold' : 'normal' }}>Users</button>
+                <button onClick={() => setActiveTab('orders')} style={{ padding: '0.5rem 1rem', background: activeTab === 'orders' ? '#eee' : 'none', border: 'none', cursor: 'pointer', fontWeight: activeTab === 'orders' ? 'bold' : 'normal' }}>Orders</button>
             </div>
+
+            {activeTab === 'overview' && stats && (
+                <div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
+                        <div style={{ padding: '1.5rem', background: '#fff', border: '1px solid #eee', borderRadius: 8, textAlign: 'center' }}>
+                            <h3 style={{ margin: 0, color: '#888', fontSize: '14px' }}>TOTAL REVENUE</h3>
+                            <p style={{ fontSize: '24px', fontWeight: 'bold', margin: '0.5rem 0' }}>Rs {stats.totalRevenue.toFixed(2)}</p>
+                        </div>
+                        <div style={{ padding: '1.5rem', background: '#fff', border: '1px solid #eee', borderRadius: 8, textAlign: 'center' }}>
+                            <h3 style={{ margin: 0, color: '#888', fontSize: '14px' }}>ORDERS</h3>
+                            <p style={{ fontSize: '24px', fontWeight: 'bold', margin: '0.5rem 0' }}>{stats.orderCount}</p>
+                        </div>
+                        <div style={{ padding: '1.5rem', background: '#fff', border: '1px solid #eee', borderRadius: 8, textAlign: 'center' }}>
+                            <h3 style={{ margin: 0, color: '#888', fontSize: '14px' }}>PRODUCTS</h3>
+                            <p style={{ fontSize: '24px', fontWeight: 'bold', margin: '0.5rem 0' }}>{stats.productCount}</p>
+                        </div>
+                        <div style={{ padding: '1.5rem', background: '#fff', border: '1px solid #eee', borderRadius: 8, textAlign: 'center' }}>
+                            <h3 style={{ margin: 0, color: '#888', fontSize: '14px' }}>USERS</h3>
+                            <p style={{ fontSize: '24px', fontWeight: 'bold', margin: '0.5rem 0' }}>{stats.userCount}</p>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {activeTab === 'products' && (
                 <div>
@@ -137,6 +159,7 @@ export default function AdminDashboard() {
                                 <tr key={c._id} style={{ borderBottom: '1px solid #eee' }}>
                                     <td style={{ padding: '0.5rem' }}>{c.name}</td>
                                     <td style={{ textAlign: 'center' }}>
+                                        <Link to={`/admin/category/${c._id}/edit`} style={{ marginRight: 8 }}><button>Edit</button></Link>
                                         <button onClick={() => deleteCategory(c._id)} style={{ color: 'red' }}>Delete</button>
                                     </td>
                                 </tr>
@@ -183,6 +206,7 @@ export default function AdminDashboard() {
                                 <th style={{ textAlign: 'left' }}>Customer</th>
                                 <th style={{ textAlign: 'left' }}>Date</th>
                                 <th style={{ textAlign: 'left' }}>Total</th>
+                                <th style={{ textAlign: 'left' }}>Payment</th>
                                 <th style={{ textAlign: 'left' }}>Status</th>
                                 <th>Actions</th>
                             </tr>
@@ -198,7 +222,20 @@ export default function AdminDashboard() {
                                         <span style={{
                                             padding: '2px 8px',
                                             borderRadius: 4,
-                                            background: o.status === 'Delivered' ? '#d4edda' : o.status === 'Canceled' ? '#f8d7da' : '#efefef'
+                                            fontSize: '12px',
+                                            background: o.isPaid ? '#d4edda' : '#fff3cd',
+                                            color: o.isPaid ? '#155724' : '#856404'
+                                        }}>
+                                            {o.isPaid ? 'Received' : 'Pending'}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span style={{
+                                            padding: '2px 8px',
+                                            borderRadius: 4,
+                                            fontSize: '12px',
+                                            background: o.status === 'Delivered' ? '#d4edda' : o.status === 'Canceled' ? '#f8d7da' : o.status === 'Refunded' ? '#d1ecf1' : '#efefef',
+                                            color: o.status === 'Delivered' ? '#155724' : o.status === 'Canceled' ? '#721c24' : o.status === 'Refunded' ? '#0c5460' : '#333'
                                         }}>
                                             {o.status}
                                         </span>

@@ -1,46 +1,51 @@
 import React, { createContext, useState, useEffect } from 'react'
 import axios from 'axios'
 
+axios.defaults.withCredentials = true
+
 export const AuthContext = createContext()
 
 export function AuthProvider({ children }) {
     const [user, setUser] = useState(null)
-    const [token, setToken] = useState(null)
+    const [loading, setLoading] = useState(true)
 
     useEffect(() => {
-        const storedToken = localStorage.getItem('token')
-        const storedUser = localStorage.getItem('user')
-        if (storedToken) setToken(storedToken)
-        if (storedUser) setUser(JSON.parse(storedUser))
+        const fetchUser = async () => {
+            try {
+                const { data } = await axios.get('http://localhost:5000/api/users/profile')
+                setUser(data)
+            } catch (error) {
+                setUser(null)
+            } finally {
+                setLoading(false)
+            }
+        }
+        fetchUser()
     }, [])
 
     const login = async (email, password) => {
         const { data } = await axios.post('http://localhost:5000/api/users/login', { email, password })
-        localStorage.setItem('token', data.token)
-        localStorage.setItem('user', JSON.stringify({ name: data.name, email: data.email, isAdmin: data.isAdmin }))
-        setToken(data.token)
-        setUser({ name: data.name, email: data.email, isAdmin: data.isAdmin })
+        setUser(data)
         return data
     }
 
     const register = async (name, email, password) => {
         const { data } = await axios.post('http://localhost:5000/api/users/register', { name, email, password })
-        localStorage.setItem('token', data.token)
-        localStorage.setItem('user', JSON.stringify({ name: data.name, email: data.email, isAdmin: data.isAdmin }))
-        setToken(data.token)
-        setUser({ name: data.name, email: data.email, isAdmin: data.isAdmin })
+        setUser(data)
         return data
     }
 
-    const logout = () => {
-        localStorage.removeItem('token')
-        localStorage.removeItem('user')
-        setToken(null)
-        setUser(null)
+    const logout = async () => {
+        try {
+            await axios.post('http://localhost:5000/api/users/logout')
+            setUser(null)
+        } catch (error) {
+            console.error('Logout failed', error)
+        }
     }
 
     return (
-        <AuthContext.Provider value={{ user, token, login, register, logout }}>
+        <AuthContext.Provider value={{ user, login, register, logout, loading }}>
             {children}
         </AuthContext.Provider>
     )

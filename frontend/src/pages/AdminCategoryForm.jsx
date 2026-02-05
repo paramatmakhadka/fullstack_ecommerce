@@ -1,20 +1,36 @@
-import React, { useState, useContext } from 'react'
-import { useNavigate } from 'react-router-dom'
+import React, { useState, useEffect } from 'react'
+import { useNavigate, useParams, Link } from 'react-router-dom'
 import axios from 'axios'
-import { AuthContext } from '../context/AuthContext'
 
 export default function AdminCategoryForm() {
     const [name, setName] = useState('')
-    const { token } = useContext(AuthContext)
     const navigate = useNavigate()
+    const { id } = useParams()
+    const isEdit = !!id
+
+    useEffect(() => {
+        if (isEdit) {
+            const fetchCategory = async () => {
+                try {
+                    const { data } = await axios.get(`http://localhost:5000/api/categories/${id}`)
+                    setName(data.name)
+                } catch (err) {
+                    console.error(err)
+                }
+            }
+            fetchCategory()
+        }
+    }, [id, isEdit])
 
     const submitHandler = async (e) => {
         e.preventDefault()
         try {
-            await axios.post('http://localhost:5000/api/categories', { name }, {
-                headers: { Authorization: `Bearer ${token}` }
-            })
-            navigate('/admin')
+            if (isEdit) {
+                await axios.put(`http://localhost:5000/api/categories/${id}`, { name })
+            } else {
+                await axios.post('http://localhost:5000/api/categories', { name })
+            }
+            navigate('/admin?tab=categories')
         } catch (err) {
             console.error(err)
             alert(err.response?.data?.message || 'Save failed')
@@ -22,8 +38,8 @@ export default function AdminCategoryForm() {
     }
 
     return (
-        <div style={{ maxWidth: 600, margin: '2rem auto' }}>
-            <h2>Create Category</h2>
+        <div style={{ maxWidth: 600, margin: '2rem auto', padding: '0 1rem' }}>
+            <h2>{isEdit ? 'Edit Category' : 'Create Category'}</h2>
             <form onSubmit={submitHandler}>
                 <div style={{ marginBottom: '1rem' }}>
                     <label style={{ display: 'block', marginBottom: '0.5rem' }}>Category Name</label>
@@ -35,10 +51,10 @@ export default function AdminCategoryForm() {
                         style={{ width: '100%', padding: '0.5rem' }}
                     />
                 </div>
-                <button type='submit' style={{ padding: '0.5rem 1rem' }}>Save Category</button>
+                <button type='submit' style={{ padding: '0.5rem 1rem' }}>{isEdit ? 'Update' : 'Save'} Category</button>
                 <button
                     type='button'
-                    onClick={() => navigate('/admin')}
+                    onClick={() => navigate('/admin?tab=categories')}
                     style={{ marginLeft: 8, padding: '0.5rem 1rem' }}
                 >
                     Cancel

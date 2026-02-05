@@ -7,7 +7,6 @@ export default function AdminProductForm() {
     const { id } = useParams()
     const isNew = !id || id === 'new'
     const navigate = useNavigate()
-    const { token } = useContext(AuthContext)
     const [categories, setCategories] = useState([])
     const [uploading, setUploading] = useState(false)
 
@@ -60,7 +59,7 @@ export default function AdminProductForm() {
             const formData = new FormData()
             formData.append('image', file)
             const { data } = await axios.post('http://localhost:5000/api/upload', formData, {
-                headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'multipart/form-data' }
+                headers: { 'Content-Type': 'multipart/form-data' }
             })
             setForm({ ...form, image: data.filePath })
         } catch (err) {
@@ -74,11 +73,10 @@ export default function AdminProductForm() {
     const submitHandler = async (e) => {
         e.preventDefault()
         try {
-            const headers = { Authorization: `Bearer ${token}` }
             if (isNew) {
-                await axios.post('http://localhost:5000/api/products', form, { headers })
+                await axios.post('http://localhost:5000/api/products', form)
             } else {
-                await axios.put(`http://localhost:5000/api/products/${id}`, form, { headers })
+                await axios.put(`http://localhost:5000/api/products/${id}`, form)
             }
             navigate('/admin')
         } catch (err) {

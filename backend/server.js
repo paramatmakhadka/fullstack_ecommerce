@@ -1,4 +1,5 @@
 const express = require("express");
+const cookieParser = require("cookie-parser");
 const dotenv = require("dotenv");
 const connectDB = require("./config/db");
 const cors = require("cors");
@@ -8,8 +9,12 @@ dotenv.config({ path: path.join(__dirname, ".env") });
 connectDB();
 
 const app = express();
-app.use(cors());
+app.use(cors({
+    origin: "http://localhost:3000",
+    credentials: true
+}));
 app.use(express.json());
+app.use(cookieParser());
 
 // Serve uploaded files
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));

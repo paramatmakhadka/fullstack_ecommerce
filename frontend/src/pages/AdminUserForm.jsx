@@ -10,7 +10,6 @@ export default function AdminUserForm() {
         password: '',
         isAdmin: false
     })
-    const { token } = useContext(AuthContext)
     const navigate = useNavigate()
 
     const handleChange = (e) => {
@@ -21,9 +20,7 @@ export default function AdminUserForm() {
     const submitHandler = async (e) => {
         e.preventDefault()
         try {
-            await axios.post('http://localhost:5000/api/admin/users', form, {
-                headers: { Authorization: `Bearer ${token}` }
-            })
+            await axios.post('http://localhost:5000/api/admin/users', form)
             navigate('/admin')
         } catch (err) {
             console.error(err)

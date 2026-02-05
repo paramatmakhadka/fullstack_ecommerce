@@ -6,7 +6,7 @@ import { AuthContext } from '../context/AuthContext'
 
 export default function CheckoutPage() {
     const { cartItems, clearCart } = useContext(CartContext)
-    const { token } = useContext(AuthContext)
+    const { user } = useContext(AuthContext)
     const navigate = useNavigate()
     const [form, setForm] = useState({ name: '', address: '', city: '', postalCode: '', country: '' })
     const [loading, setLoading] = useState(false)
@@ -32,9 +32,7 @@ export default function CheckoutPage() {
                 totalPrice: subtotal
             }
 
-            const config = token ? { headers: { Authorization: `Bearer ${token}` } } : {}
-
-            await axios.post('http://localhost:5000/api/orders', orderData, config)
+            await axios.post('http://localhost:5000/api/orders', orderData)
 
             alert('Order placed successfully (Cash on Delivery)')
             clearCart()

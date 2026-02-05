@@ -2,7 +2,9 @@ import React, { useContext } from 'react'
 import { AuthContext } from '../context/AuthContext'
 
 export default function ProfilePage() {
-    const { user } = useContext(AuthContext)
+    const { user, loading } = useContext(AuthContext)
+
+    if (loading) return <div style={{ padding: 20 }}>Loading...</div>
 
     return (
         <div style={{ maxWidth: 800, margin: '2rem auto' }}>
