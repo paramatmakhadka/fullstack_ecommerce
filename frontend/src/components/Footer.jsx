@@ -15,7 +15,7 @@ function Footer() {
 
 								<Link
 									to="/"
-									className="text-dark text-decoration-none fw-bold fs-4 text-white">MERN Shop</Link>
+									className="text-dark text-decoration-none fw-bold fs-4 text-white">Hamro Pasal</Link>
 								<p>
 									We are an award-winning ecommerce platform, dedicated to the providing best service and products at affordable rate.
 								</p>
@@ -52,7 +52,7 @@ function Footer() {
 							<span>©&nbsp; </span>
 							<span className="copyright-year">2026</span>
 							<span>&nbsp;</span>
-							<span>MERN Shop </span>
+							<span>Hamro Pasal </span>
 							<span>.&nbsp;</span>
 							<span>All Rights Reserved. </span>
 							<span>Crafted By Paramatma Khadka.</span>
