@@ -7,18 +7,23 @@ export function CartProvider({ children }) {
     const [cartItems, setCartItems] = useState([])
     const [couponCode, setCouponCode] = useState('')
     const [specialNote, setSpecialNote] = useState('')
+    const [discount, setDiscount] = useState(0) // percentage or fixed amount
+    const [discountType, setDiscountType] = useState('Percentage')
+    const [appliedCoupon, setAppliedCoupon] = useState(null)
 
     useEffect(() => {
         const stored = localStorage.getItem('cart')
         if (stored) {
             const data = JSON.parse(stored)
-            // Handle both old format (array) and new format (object)
             if (Array.isArray(data)) {
                 setCartItems(data)
             } else {
                 setCartItems(data.items || [])
                 setCouponCode(data.coupon || '')
                 setSpecialNote(data.note || '')
+                setDiscount(data.discount || 0)
+                setDiscountType(data.discountType || 'Percentage')
+                setAppliedCoupon(data.appliedCoupon || null)
             }
         }
     }, [])
@@ -27,9 +32,12 @@ export function CartProvider({ children }) {
         localStorage.setItem('cart', JSON.stringify({
             items: cartItems,
             coupon: couponCode,
-            note: specialNote
+            note: specialNote,
+            discount,
+            discountType,
+            appliedCoupon
         }))
-    }, [cartItems, couponCode, specialNote])
+    }, [cartItems, couponCode, specialNote, discount, discountType, appliedCoupon])
 
     const addToCart = (product, qty = 1) => {
         setCartItems((prev) => {
@@ -65,6 +73,9 @@ export function CartProvider({ children }) {
         setCartItems([])
         setCouponCode('')
         setSpecialNote('')
+        setDiscount(0)
+        setDiscountType('Percentage')
+        setAppliedCoupon(null)
     }
 
     return (
@@ -74,6 +85,12 @@ export function CartProvider({ children }) {
             setCouponCode,
             specialNote,
             setSpecialNote,
+            discount,
+            setDiscount,
+            discountType,
+            setDiscountType,
+            appliedCoupon,
+            setAppliedCoupon,
             addToCart,
             removeFromCart,
             updateQty,

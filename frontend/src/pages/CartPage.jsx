@@ -1,6 +1,8 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { CartContext } from '../context/CartContext';
 import { Link } from 'react-router-dom';
+import axios from 'axios';
+import { toast } from 'react-toastify';
 
 export default function CartPage() {
     const {
@@ -10,15 +12,51 @@ export default function CartPage() {
         couponCode,
         setCouponCode,
         specialNote,
-        setSpecialNote
+        setSpecialNote,
+        discount,
+        setDiscount,
+        discountType,
+        setDiscountType,
+        appliedCoupon,
+        setAppliedCoupon
     } = useContext(CartContext);
+
+    const [loading, setLoading] = useState(false);
+
+    const handleApplyCoupon = async () => {
+        if (!couponCode) return toast.info('Please enter a coupon code');
+        setLoading(true);
+        try {
+            const { data } = await axios.post('http://localhost:5000/api/coupons/validate', { code: couponCode });
+            setDiscount(data.discountValue);
+            setDiscountType(data.discountType);
+            setAppliedCoupon(data.code);
+            toast.success(`Coupon "${data.code}" applied!`);
+        } catch (err) {
+            toast.error(err.response?.data?.message || 'Invalid coupon code');
+            setDiscount(0);
+            setAppliedCoupon(null);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     // Calculations based on the UI logic
     const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.qty, 0);
+
+    let discountAmount = 0;
+    if (appliedCoupon) {
+        if (discountType === 'Percentage') {
+            discountAmount = subtotal * (discount / 100);
+        } else {
+            discountAmount = discount;
+        }
+    }
+
     const shipping = 0.00;
     const taxRate = 0.13;
-    const tax = subtotal * taxRate;
-    const totalAmount = subtotal + shipping + tax;
+    const tax = (subtotal - discountAmount) * taxRate;
+    const totalAmount = subtotal - discountAmount + shipping + tax;
 
     // Shared Styles
     const thStyle = {
@@ -127,8 +165,26 @@ export default function CartPage() {
                                     onChange={(e) => setCouponCode(e.target.value)}
                                     style={{ flex: 1, padding: '10px', border: '1px solid #ddd', borderRadius: '4px' }}
                                 />
-                                <button style={{ ...btnStyle, backgroundColor: '#f8f9fa', border: '1px solid #ddd' }}>Apply</button>
+                                <button
+                                    onClick={handleApplyCoupon}
+                                    disabled={loading}
+                                    style={{ ...btnStyle, backgroundColor: '#f8f9fa', border: '1px solid #ddd' }}
+                                >
+                                    {loading ? '...' : 'Apply'}
+                                </button>
                             </div>
+
+                            {appliedCoupon && (
+                                <div style={{ marginBottom: '15px', color: '#1b7e52', fontSize: '14px', fontWeight: 'bold' }}>
+                                    ✓ Coupon "{appliedCoupon}" applied ({discountType === 'Percentage' ? `${discount}%` : `Rs ${discount}`} Off)
+                                    <button
+                                        onClick={() => { setAppliedCoupon(null); setDiscount(0); setCouponCode(''); }}
+                                        style={{ background: 'none', border: 'none', color: '#ff4d4d', marginLeft: '10px', cursor: 'pointer', fontSize: '12px' }}
+                                    >
+                                        Remove
+                                    </button>
+                                </div>
+                            )}
 
                             <label style={{ display: 'block', marginBottom: '8px', fontSize: '14px', color: '#666' }}>
                                 Special Note for this order:
@@ -148,6 +204,12 @@ export default function CartPage() {
                                     <span>Sub Total :</span>
                                     <strong>Rs {subtotal.toFixed(2)}</strong>
                                 </div>
+                                {appliedCoupon && (
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', margin: '10px 0', color: '#1b7e52' }}>
+                                        <span>Discount :</span>
+                                        <strong>- Rs {discountAmount.toFixed(2)}</strong>
+                                    </div>
+                                )}
                                 <div style={{ display: 'flex', justifyContent: 'space-between', margin: '10px 0' }}>
                                     <span>Shipping :</span>
                                     <strong>Rs {shipping.toFixed(2)}</strong>

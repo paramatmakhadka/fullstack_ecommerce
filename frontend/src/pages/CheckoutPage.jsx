@@ -6,7 +6,7 @@ import { AuthContext } from '../context/AuthContext'
 import { toast } from 'react-toastify'
 
 export default function CheckoutPage() {
-    const { cartItems, clearCart, couponCode, specialNote } = useContext(CartContext)
+    const { cartItems, clearCart, couponCode, specialNote, discount, discountType, appliedCoupon } = useContext(CartContext)
     const { user } = useContext(AuthContext)
     const navigate = useNavigate()
     const [form, setForm] = useState({ name: '', address: '', city: '', postalCode: '', country: '' })
@@ -15,6 +15,20 @@ export default function CheckoutPage() {
     const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value })
 
     const subtotal = cartItems.reduce((acc, item) => acc + item.price * item.qty, 0)
+
+    let discountAmount = 0
+    if (appliedCoupon) {
+        if (discountType === 'Percentage') {
+            discountAmount = subtotal * (discount / 100)
+        } else {
+            discountAmount = discount
+        }
+    }
+
+    const shipping = 0
+    const taxRate = 0.13
+    const tax = (subtotal - discountAmount) * taxRate
+    const finalTotal = subtotal - discountAmount + shipping + tax
 
     const submitHandler = async (e) => {
         e.preventDefault()
@@ -30,7 +44,7 @@ export default function CheckoutPage() {
                 })),
                 shippingAddress: form,
                 paymentMethod: 'Cash on Delivery',
-                totalPrice: subtotal,
+                totalPrice: finalTotal,
                 couponCode,
                 specialNote
             }
@@ -58,7 +72,12 @@ export default function CheckoutPage() {
             <div style={{ marginBottom: '2rem', padding: '1rem', border: '1px solid #eee' }}>
                 <h3>Order Summary</h3>
                 <p><strong>Total Items:</strong> {cartItems.reduce((acc, item) => acc + item.qty, 0)}</p>
-                <p><strong>Total Price:</strong> Rs {subtotal.toFixed(2)}</p>
+                <p><strong>Subtotal:</strong> Rs {subtotal.toFixed(2)}</p>
+                {appliedCoupon && (
+                    <p style={{ color: '#1b7e52' }}><strong>Discount:</strong> - Rs {discountAmount.toFixed(2)}</p>
+                )}
+                <p><strong>Tax (13%):</strong> Rs {tax.toFixed(2)}</p>
+                <p><strong>Final Price:</strong> Rs {finalTotal.toFixed(2)}</p>
                 <p><strong>Payment Method:</strong> Cash on Delivery (COD)</p>
             </div>
 

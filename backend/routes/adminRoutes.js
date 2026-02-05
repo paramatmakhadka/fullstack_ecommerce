@@ -27,6 +27,7 @@ router.get(
 		const userCount = await User.countDocuments({});
 		const productCount = await Product.countDocuments({});
 		const orderCount = await Order.countDocuments({});
+		const couponCount = await require("../models/couponModel").countDocuments({});
 
 		const orders = await Order.find({});
 		const totalRevenue = orders.reduce(
@@ -60,6 +61,7 @@ router.get(
 			userCount,
 			productCount,
 			orderCount,
+			couponCount,
 			totalRevenue,
 			salesData,
 		});

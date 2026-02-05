@@ -37,6 +37,9 @@ app.use("/api/categories", categoryRoutes);
 const orderRoutes = require("./routes/orderRoutes");
 app.use("/api/orders", orderRoutes);
 
+const couponRoutes = require("./routes/couponRoutes");
+app.use("/api/coupons", couponRoutes);
+
 app.get("/", (req, res) => res.send("API is running"));
 
 // Error handling middleware
